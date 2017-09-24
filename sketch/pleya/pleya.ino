@@ -53,16 +53,48 @@
 
 #define DEBUG 1
 
+class Button {
+public:
+  void init(int pin) {
+    _pin = pin;
+    pinMode(_pin, INPUT_PULLUP);
+  }
+
+  bool pressed() {
+    bool state = !digitalRead(_pin);
+    if (state) {
+      if (++_counter == DEBOUNCE) {
+        return true;
+      } else {
+        _counter = min(DEBOUNCE, _counter);
+      }
+    } else {
+      _counter = 0;
+    }
+    return false;
+  }
+
+private:
+  static const byte DEBOUNCE = 50;
+  int _pin;
+  byte _counter = 0;
+};
+
 // Number of playlists (maximum is 9)
-static const int playlistCount = 9;
+static const int playlistCount = 6;
 
 // Pin connected to a variable voltage divider used for volume control
 static const int volumePin = 18; // A0
 
 // Pins connected to buttons used for playback control
-static const int playlistPins[playlistCount] = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-static const int backwardPin = 10;
-static const int forwardPin = 10;
+static const int playlistPins[playlistCount] = { 13, 21, 19, 12, 22, 20 };
+static const int backwardPin = 11;
+static const int forwardPin = 23;
+
+// Buttons
+static Button playlistButtons[playlistCount];
+static Button backwardButton;
+static Button forwardButton;
 
 int currentPlaylist = -1;
 int currentTrack = -1;
@@ -208,13 +240,79 @@ void backward() {
 void forward() {
 #if DEBUG
   Serial.println("forward()");
+  Serial.print("file size: "); Serial.println(musicPlayer.fileSize());
+  Serial.print("file position: "); Serial.println(musicPlayer.filePosition());
+  Serial.print("file progress: "); Serial.println((100L * musicPlayer.filePosition()) / musicPlayer.fileSize());
+  musicPlayer.fileSeek(musicPlayer.filePosition() + (1024L * 256L));
 #endif
 }
 
+void handleSerial() {
+  // handle keystroke over serial to simulate push buttons
+  if (Serial.available()) {
+    char c = Serial.read();
+    switch (c) {
+      case 'q': backward(); break;
+      case 'w': forward(); break;
+      case '1': playTrack(0); break;
+      case '2': playTrack(1); break;
+      case '3': playTrack(2); break;
+      case '4': playTrack(3); break;
+      case '5': playTrack(4); break;
+      case '6': playTrack(5); break;
+      case '7': playTrack(6); break;
+      case '8': playTrack(7); break;
+      case '9': playTrack(8); break;
+      default: break;
+    }
+  }
+}
+
+void handleButtons() {
+  for (int i = 0; i < playlistCount; ++i) {
+    if (playlistButtons[i].pressed()) {
+      playTrack(i);
+    }
+  }
+  if (backwardButton.pressed()) {
+    backward();
+  }
+  if (forwardButton.pressed()) {
+    forward();
+  }  
+}
+
+void handleVolume() {
+  // read volume pot (0..1023)
+  int volumeValue = analogRead(volumePin);
+  // map to 0..100
+  int volume = volumeValue / 10;
+  volume = volume > 100 ? 100 : volume;
+  volume = 100 - volume;
+  // set volume
+  musicPlayer.setVolume(volume, volume);  
+}
+
+void handleNextTrack() {
+  // go to next track if current track finished
+  if (isPlaying && musicPlayer.stopped()) {
+#if DEBUG
+    Serial.println("track done playing");
+#endif
+    playTrack(currentPlaylist);
+  }  
+}
 
 void setup() {
   // if you're using Bluefruit or LoRa/RFM Feather, disable the BLE interface
   //pinMode(8, INPUT_PULLUP);
+
+  // init buttons
+  for (int i = 0; i < playlistCount; ++i) {
+    playlistButtons[i].init(playlistPins[i]);
+  }
+  backwardButton.init(backwardPin);
+  forwardButton.init(forwardPin);
 
 #if DEBUG
   Serial.begin(115200);
@@ -265,38 +363,17 @@ void setup() {
 }
 
 void loop() {
-  if (Serial.available()) {
-    char c = Serial.read();
-    switch (c) {
-      case 'q': backward(); break;
-      case 'w': forward(); break;
-      case '1': playTrack(0); break;
-      case '2': playTrack(1); break;
-      case '3': playTrack(2); break;
-      case '4': playTrack(3); break;
-      case '5': playTrack(4); break;
-      case '6': playTrack(5); break;
-      case '7': playTrack(6); break;
-      case '8': playTrack(7); break;
-      case '9': playTrack(8); break;
-      default: break;
-    }
-  }
-  
-  // handle volume pot
-  int volumeValue = analogRead(volumePin);
-  int volume = volumeValue / 10;
-  volume = volume > 100 ? 100 : volume;
-  volume = 100 - volume;
-  musicPlayer.setVolume(volume, volume);
-  delay(50);
-
-  if (isPlaying && musicPlayer.stopped()) {
 #if DEBUG
-    Serial.println("track done playing");
+  handleSerial();
 #endif
-    playTrack(currentPlaylist);
+  handleButtons();
+  
+  static int counter;
+  if (++counter % 100 == 0) {
+    handleVolume();
   }
+
+  handleNextTrack();
 }
 
 
