@@ -63,5 +63,5 @@ Follow these steps to install the software on the hardware:
 Follow these steps to prepare a MicroSD for pleya:
 
 - Format the card using the FAT filesystem
-- Create playlist folders `0` .. `N-1` where `N` is the number of playlists (corresponding to the number of playlist buttons connected to the hardware)
+- Create playlist folders `0` .. `N-1` where `N` is the number of playlists (corresponding `playlistCount` in the software)
 - Copy audio files to the playlist folders
