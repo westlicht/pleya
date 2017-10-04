@@ -15,43 +15,11 @@
   #define CARDCS          5     // Card chip select pin
   // DREQ should be an Int pin *if possible* (not possible on 32u4)
   #define VS1053_DREQ     9     // VS1053 Data request, ideally an Interrupt pin
-
-// Feather ESP8266
-#elif defined(ESP8266)
-  #define VS1053_CS      16     // VS1053 chip select pin (output)
-  #define VS1053_DCS     15     // VS1053 Data/command select pin (output)
-  #define CARDCS          2     // Card chip select pin
-  #define VS1053_DREQ     0     // VS1053 Data request, ideally an Interrupt pin
-
-// Feather ESP32
-#elif defined(ESP32)
-  #define VS1053_CS      32     // VS1053 chip select pin (output)
-  #define VS1053_DCS     33     // VS1053 Data/command select pin (output)
-  #define CARDCS         14     // Card chip select pin
-  #define VS1053_DREQ    15     // VS1053 Data request, ideally an Interrupt pin
-
-// Feather Teensy3
-#elif defined(TEENSYDUINO)
-  #define VS1053_CS       3     // VS1053 chip select pin (output)
-  #define VS1053_DCS     10     // VS1053 Data/command select pin (output)
-  #define CARDCS          8     // Card chip select pin
-  #define VS1053_DREQ     4     // VS1053 Data request, ideally an Interrupt pin
-
-// WICED feather
-#elif defined(ARDUINO_STM32_FEATHER)
-  #define VS1053_CS       PC7     // VS1053 chip select pin (output)
-  #define VS1053_DCS      PB4     // VS1053 Data/command select pin (output)
-  #define CARDCS          PC5     // Card chip select pin
-  #define VS1053_DREQ     PA15    // VS1053 Data request, ideally an Interrupt pin
-
-#elif defined(ARDUINO_FEATHER52)
-  #define VS1053_CS       30     // VS1053 chip select pin (output)
-  #define VS1053_DCS      11     // VS1053 Data/command select pin (output)
-  #define CARDCS          27     // Card chip select pin
-  #define VS1053_DREQ     31     // VS1053 Data request, ideally an Interrupt pin
+#else
+  #error "Unsupported hardware platform! Use a Adafruit Feather 32u4 instead."
 #endif
 
-#define DEBUG 1
+#define DEBUG 0
 
 class Button {
 public:
@@ -106,7 +74,7 @@ File currentFile;
 Adafruit_VS1053_FilePlayer musicPlayer =
   Adafruit_VS1053_FilePlayer(VS1053_RESET, VS1053_CS, VS1053_DCS, VS1053_DREQ, CARDCS);
 
-// write playlist/track to EEPROM
+// Write playlist/track to EEPROM
 void writeEEPROM(int playlist, int track) {
 #if DEBUG
   Serial.print("writeEEPROM("); Serial.print(playlist); Serial.print(", "); Serial.print(track); Serial.println(")");
@@ -118,7 +86,7 @@ void writeEEPROM(int playlist, int track) {
   EEPROM.update(0, 0xab);
 }
 
-// read playlist/track from EEPROM
+// Read playlist/track from EEPROM
 bool readEEPROM(int &playlist, int &track) {
 #if DEBUG
   Serial.println("readEEPROM()");
@@ -131,7 +99,7 @@ bool readEEPROM(int &playlist, int &track) {
   return true;
 }
 
-// play next track in playlist or the specified track if track != -1
+// Play next track in playlist or the specified track if track != -1
 void playTrack(int playlist, int track = -1) {
 #if DEBUG
   Serial.print("playTrack("); Serial.print(playlist); Serial.print(", "); Serial.print(track); Serial.println(")");
@@ -166,7 +134,7 @@ void playTrack(int playlist, int track = -1) {
     return;
   }
 
-  // open next file
+  // Open next file
   while (true) {
     currentFile = currentDir.openNextFile();
     if (!currentFile) {
@@ -187,7 +155,7 @@ void playTrack(int playlist, int track = -1) {
       continue;
     }
     if (currentFile.size() <= 4096) {
-      // skip small files that are artifacts from long file names
+      // Skip small files that are artifacts from long file names
 #if DEBUG
       Serial.print("skipping file '"); Serial.print(currentFile.name()); Serial.println("'");
 #endif
@@ -228,7 +196,7 @@ void playTrack(int playlist, int track = -1) {
   }
 }
 
-// go backward in current track
+// Go backward in current track
 void backward() {
 #if DEBUG
   Serial.println("backward()");
@@ -236,7 +204,7 @@ void backward() {
   playTrack(currentPlaylist, currentTrack);
 }
 
-// go forward in current track
+// Go forward in current track
 void forward() {
 #if DEBUG
   Serial.println("forward()");
@@ -248,7 +216,7 @@ void forward() {
 }
 
 void handleSerial() {
-  // handle keystroke over serial to simulate push buttons
+  // Handle keystroke over serial to simulate push buttons
   if (Serial.available()) {
     char c = Serial.read();
     switch (c) {
@@ -283,18 +251,18 @@ void handleButtons() {
 }
 
 void handleVolume() {
-  // read volume pot (0..1023)
+  // Read volume pot (0..1023)
   int volumeValue = analogRead(volumePin);
-  // map to 0..100
+  // Map to 0..100
   int volume = volumeValue / 10;
   volume = volume > 100 ? 100 : volume;
   volume = 100 - volume;
-  // set volume
+  // Set volume
   musicPlayer.setVolume(volume, volume);  
 }
 
 void handleNextTrack() {
-  // go to next track if current track finished
+  // Go to next track if current track finished
   if (isPlaying && musicPlayer.stopped()) {
 #if DEBUG
     Serial.println("track done playing");
@@ -304,10 +272,7 @@ void handleNextTrack() {
 }
 
 void setup() {
-  // if you're using Bluefruit or LoRa/RFM Feather, disable the BLE interface
-  //pinMode(8, INPUT_PULLUP);
-
-  // init buttons
+  // Init buttons
   for (int i = 0; i < playlistCount; ++i) {
     playlistButtons[i].init(playlistPins[i]);
   }
@@ -340,19 +305,11 @@ void setup() {
     while (1);
   }
   
-#if defined(__AVR_ATmega32U4__) 
   // Timer interrupts are not suggested, better to use DREQ interrupt!
   // but we don't have them on the 32u4 feather...
   musicPlayer.useInterrupt(VS1053_FILEPLAYER_TIMER0_INT); // timer int
-#elif defined(ESP32)
-  // no IRQ! doesn't work yet :/
-#else
-  // If DREQ is on an interrupt pin we can do background
-  // audio playing
-  musicPlayer.useInterrupt(VS1053_FILEPLAYER_PIN_INT);  // DREQ int
-#endif
 
-  // play last played track if available or start first playlist
+  // Play last played track if available or start first playlist
   int initialPlaylist;
   int initialTrack;
   if (readEEPROM(initialPlaylist, initialTrack)) {

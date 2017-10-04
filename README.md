@@ -51,7 +51,7 @@ Follow these steps to install the software on the hardware:
 - Install the [Adafruit_VS1053_Library](https://github.com/westlicht/Adafruit_VS1053_Library) fork
 - Open `sketch/pleya/pleya.ino` in Arduino
 - Adjust the following variables in `pleya.ino` in case you don't use the default hardware configuration
-    - `playlistCount` to set the number of playlist buttons
+    - `playlistCount` to set the number of playlist buttons (maximum is 9)
     - `playlistPins` to define the digital pins connected to the playlist buttons
     - `backwardPin` and `forwardPin` to define the digital pins connected to the backward/forward buttons
 - Select _Adafruit 32u4 Breakout_ in the _Tools_ / _Boards_ menu
