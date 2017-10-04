@@ -43,14 +43,14 @@ To complete the pleya hardware the following additional parts are required:
 
 To finish the hardware assembly follow these steps:
 
-- volume potentiometer
-  - connect the terminals of the potentiometer to `GND` and `3V3` on the Feather
-  - connect the wiper of the potentionmeter to `A0` on the Feather
-- connect `VREFA` on the Feather to `3V3` on the Feather (analog reference)
-- connect the terminals of the push buttons to `GND` and a digital pin on the Feather
-- make sure to specify the correct pins in the configuration options (see below)
-- connect the speaker(s) to the speaker terminals on the Music Feather Wing
-- use the power switch to break up the battery connection (best to use an extension cord)
+- Stack the two Feather boards together
+- Connect the end terminals of the potentiometer to `GND` and `3V3` on the Feather
+- Connect the wiper of the potentionmeter to `A0` on the Feather
+- Connect `VREFA` on the Feather to `3V3` on the Feather (analog reference)
+- Connect the terminals of the push buttons to `GND` and a digital pin on the Feather
+- Make sure to specify the correct pins in the configuration options (see below)
+- Connect the speaker(s) to the speaker terminals on the Music Feather Wing
+- Use the power switch to break up the battery connection (best to use an extension cord)
 
 ## Software Installation
 
