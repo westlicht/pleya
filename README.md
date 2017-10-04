@@ -33,15 +33,24 @@ The hardware is based on the following Adafruit Feather Boards:
 To complete the pleya hardware the following additional parts are required:
 
 - Push buttons
-- Potentiometer (volume control)
+- Potentiometer (linear, around 10K)
 - Switch for power on/off
-- Speaker (4 or 8 Ohm)
+- Speaker(s) (4 or 8 Ohm)
 - 3.7V Li-Po battery
 - MicroSD card
 
 ## Hardware Assembly
 
-TBD
+To finish the hardware assembly follow these steps:
+
+- volume potentiometer
+  - connect the terminals of the potentiometer to `GND` and `3V3` on the Feather
+  - connect the wiper of the potentionmeter to `A0` on the Feather
+- connect `VREFA` on the Feather to `3V3` on the Feather (analog reference)
+- connect the terminals of the push buttons to `GND` and a digital pin on the Feather
+- make sure to specify the correct pins in the configuration options (see below)
+- connect the speaker(s) to the speaker terminals on the Music Feather Wing
+- use the power switch to break up the battery connection (best to use an extension cord)
 
 ## Software Installation
 
@@ -55,7 +64,7 @@ Follow these steps to install the software on the hardware:
     - `playlistPins` to define the digital pins connected to the playlist buttons
     - `backwardPin` and `forwardPin` to define the digital pins connected to the backward/forward buttons
 - Select _Adafruit 32u4 Breakout_ in the _Tools_ / _Boards_ menu
-- Connect the feather via USB
+- Connect the Feather via USB
 - Press _Upload_ to upload the sketch to the feather
 
 ## MicroSD Card Preparation
