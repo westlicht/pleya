@@ -250,6 +250,8 @@ void handleButtons() {
   }  
 }
 
+static int volumeFiltered = 0;
+
 void handleVolume() {
   // Read volume pot (0..1023)
   int volumeValue = analogRead(volumePin);
@@ -257,8 +259,10 @@ void handleVolume() {
   int volume = volumeValue / 10;
   volume = volume > 100 ? 100 : volume;
   volume = 100 - volume;
+  // Lowpass filter to prevent volume jittering
+  volumeFiltered = (volumeFiltered * 10 + volume) / 11;
   // Set volume
-  musicPlayer.setVolume(volume, volume);  
+  musicPlayer.setVolume(volumeFiltered, volumeFiltered);
 }
 
 void handleNextTrack() {
