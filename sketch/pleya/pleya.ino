@@ -211,8 +211,8 @@ void forward() {
   Serial.print("file size: "); Serial.println(musicPlayer.fileSize());
   Serial.print("file position: "); Serial.println(musicPlayer.filePosition());
   Serial.print("file progress: "); Serial.println((100L * musicPlayer.filePosition()) / musicPlayer.fileSize());
-  musicPlayer.fileSeek(musicPlayer.filePosition() + (1024L * 256L));
 #endif
+  musicPlayer.fileSeek(musicPlayer.filePosition() + (1024L * 256L));
 }
 
 void handleSerial() {
