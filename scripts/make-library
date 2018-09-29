@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+
+import os
+import shutil
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description='playa library converter')
+    parser.add_argument('source', metavar='SOURCEDIR', type=str, help='source directory')
+    parser.add_argument('target', metavar='TARGETDIR', type=str, help='target directory')
+
+    args = parser.parse_args()
+
+    source = os.path.abspath(args.source)
+    target = os.path.abspath(args.target)
+
+    print(source, target)
+
+    if os.path.exists(target):
+        shutil.rmtree(target)
+
+    for playlist, srcdir in enumerate(map(lambda x: os.path.join(source, x), next(os.walk(source))[1])):
+        dstdir = os.path.join(target, str(playlist))
+        os.makedirs(dstdir)
+        for track, src in enumerate(map(lambda x: os.path.join(srcdir, x), next(os.walk(srcdir))[2])):
+            dst = os.path.join(dstdir, str(track) + os.path.splitext(src)[1])
+            print '%s -> %s ...' % (src, dst)
+            shutil.copyfile(src, dst)
+
+
+
+
+
+if __name__ == "__main__":
+    main()
