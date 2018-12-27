@@ -21,7 +21,7 @@ Being made for the little ones, the user interface is kept very simple. The cont
 - Forward/backward button
 - N playlist buttons
 
-Pressing a playlist button will start playing the next track in that playlist. Forward/backward buttons allow to fast forward through the playing track and reset to it's beginning. The current playing playlist/track is saved to the EEPROM in order for pleya to automatically play the last played track when turned off and on again.
+Pressing a playlist button will start playing the next track in that playlist. Forward/backward buttons allow to fast forward through the playing track and reset to it's beginning. The current playing playlist, track and track position is saved to the SD card in order for pleya to automatically continue playing the last played track when turned off and on again. The track position is saved every 10 seconds.
 
 ## Hardware
 
@@ -73,4 +73,10 @@ Follow these steps to prepare a MicroSD for pleya:
 
 - Format the card using the FAT filesystem
 - Create playlist folders `0` .. `N-1` where `N` is the number of playlists (corresponding `playlistCount` in the software)
-- Copy audio files to the playlist folders
+- Copy audio files to the playlist folders (track order is sorted alphanumerically)
+
+## Images of completed pleyas
+
+![](images/pleya1.jpg)
+![](images/pleya2.jpg)
+![](images/pleya3.jpg)
